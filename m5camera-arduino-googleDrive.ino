@@ -56,35 +56,34 @@ WiFiClientSecure client;
 #define WIFI_CONN_TIMEOUT 30000 //Wi-Fi接続のタイムアウト
 String ssid = "SSID";
 String pass = "PASSWORD";
-
+boolean flag=false;
 /*  事前にgoogle.comのCAを取得しておく */
 const char* root_ca= \
-     "-----BEGIN CERTIFICATE-----\n" \
-     "MIIEXDCCA0SgAwIBAgINAeOpMBz8cgY4P5pTHTANBgkqhkiG9w0BAQsFADBMMSAw\n" \
-     "HgYDVQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMjETMBEGA1UEChMKR2xvYmFs\n" \
-     "U2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbjAeFw0xNzA2MTUwMDAwNDJaFw0yMTEy\n" \
-     "MTUwMDAwNDJaMFQxCzAJBgNVBAYTAlVTMR4wHAYDVQQKExVHb29nbGUgVHJ1c3Qg\n" \
-     "U2VydmljZXMxJTAjBgNVBAMTHEdvb2dsZSBJbnRlcm5ldCBBdXRob3JpdHkgRzMw\n" \
-     "ggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDKUkvqHv/OJGuo2nIYaNVW\n" \
-     "XQ5IWi01CXZaz6TIHLGp/lOJ+600/4hbn7vn6AAB3DVzdQOts7G5pH0rJnnOFUAK\n" \
-     "71G4nzKMfHCGUksW/mona+Y2emJQ2N+aicwJKetPKRSIgAuPOB6Aahh8Hb2XO3h9\n" \
-     "RUk2T0HNouB2VzxoMXlkyW7XUR5mw6JkLHnA52XDVoRTWkNty5oCINLvGmnRsJ1z\n" \
-     "ouAqYGVQMc/7sy+/EYhALrVJEA8KbtyX+r8snwU5C1hUrwaW6MWOARa8qBpNQcWT\n" \
-     "kaIeoYvy/sGIJEmjR0vFEwHdp1cSaWIr6/4g72n7OqXwfinu7ZYW97EfoOSQJeAz\n" \
-     "AgMBAAGjggEzMIIBLzAOBgNVHQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUH\n" \
-     "AwEGCCsGAQUFBwMCMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFHfCuFCa\n" \
-     "Z3Z2sS3ChtCDoH6mfrpLMB8GA1UdIwQYMBaAFJviB1dnHB7AagbeWbSaLd/cGYYu\n" \
-     "MDUGCCsGAQUFBwEBBCkwJzAlBggrBgEFBQcwAYYZaHR0cDovL29jc3AucGtpLmdv\n" \
-     "b2cvZ3NyMjAyBgNVHR8EKzApMCegJaAjhiFodHRwOi8vY3JsLnBraS5nb29nL2dz\n" \
-     "cjIvZ3NyMi5jcmwwPwYDVR0gBDgwNjA0BgZngQwBAgIwKjAoBggrBgEFBQcCARYc\n" \
-     "aHR0cHM6Ly9wa2kuZ29vZy9yZXBvc2l0b3J5LzANBgkqhkiG9w0BAQsFAAOCAQEA\n" \
-     "HLeJluRT7bvs26gyAZ8so81trUISd7O45skDUmAge1cnxhG1P2cNmSxbWsoiCt2e\n" \
-     "ux9LSD+PAj2LIYRFHW31/6xoic1k4tbWXkDCjir37xTTNqRAMPUyFRWSdvt+nlPq\n" \
-     "wnb8Oa2I/maSJukcxDjNSfpDh/Bd1lZNgdd/8cLdsE3+wypufJ9uXO1iQpnh9zbu\n" \
-     "FIwsIONGl1p3A8CgxkqI/UAih3JaGOqcpcdaCIzkBaR9uYQ1X4k2Vg5APRLouzVy\n" \
-     "7a8IVk6wuy6pm+T7HT4LY8ibS5FEZlfAFLSW8NwsVz9SBK2Vqn1N0PIMn5xA6NZV\n" \
-     "c7o835DLAFshEWfC7TIe3g==\n" \
-     "-----END CERTIFICATE-----\n";
+"-----BEGIN CERTIFICATE-----\n" \
+"MIIESjCCAzKgAwIBAgINAeO0mqGNiqmBJWlQuDANBgkqhkiG9w0BAQsFADBMMSAw\n" \
+"HgYDVQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSMjETMBEGA1UEChMKR2xvYmFs\n" \
+"U2lnbjETMBEGA1UEAxMKR2xvYmFsU2lnbjAeFw0xNzA2MTUwMDAwNDJaFw0yMTEy\n" \
+"MTUwMDAwNDJaMEIxCzAJBgNVBAYTAlVTMR4wHAYDVQQKExVHb29nbGUgVHJ1c3Qg\n" \
+"U2VydmljZXMxEzARBgNVBAMTCkdUUyBDQSAxTzEwggEiMA0GCSqGSIb3DQEBAQUA\n" \
+"A4IBDwAwggEKAoIBAQDQGM9F1IvN05zkQO9+tN1pIRvJzzyOTHW5DzEZhD2ePCnv\n" \
+"UA0Qk28FgICfKqC9EksC4T2fWBYk/jCfC3R3VZMdS/dN4ZKCEPZRrAzDsiKUDzRr\n" \
+"mBBJ5wudgzndIMYcLe/RGGFl5yODIKgjEv/SJH/UL+dEaltN11BmsK+eQmMF++Ac\n" \
+"xGNhr59qM/9il71I2dN8FGfcddwuaej4bXhp0LcQBbjxMcI7JP0aM3T4I+DsaxmK\n" \
+"FsbjzaTNC9uzpFlgOIg7rR25xoynUxv8vNmkq7zdPGHXkxWY7oG9j+JkRyBABk7X\n" \
+"rJfoucBZEqFJJSPk7XA0LKW0Y3z5oz2D0c1tJKwHAgMBAAGjggEzMIIBLzAOBgNV\n" \
+"HQ8BAf8EBAMCAYYwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMBIGA1Ud\n" \
+"EwEB/wQIMAYBAf8CAQAwHQYDVR0OBBYEFJjR+G4Q68+b7GCfGJAboOt9Cf0rMB8G\n" \
+"A1UdIwQYMBaAFJviB1dnHB7AagbeWbSaLd/cGYYuMDUGCCsGAQUFBwEBBCkwJzAl\n" \
+"BggrBgEFBQcwAYYZaHR0cDovL29jc3AucGtpLmdvb2cvZ3NyMjAyBgNVHR8EKzAp\n" \
+"MCegJaAjhiFodHRwOi8vY3JsLnBraS5nb29nL2dzcjIvZ3NyMi5jcmwwPwYDVR0g\n" \
+"BDgwNjA0BgZngQwBAgIwKjAoBggrBgEFBQcCARYcaHR0cHM6Ly9wa2kuZ29vZy9y\n" \
+"ZXBvc2l0b3J5LzANBgkqhkiG9w0BAQsFAAOCAQEAGoA+Nnn78y6pRjd9XlQWNa7H\n" \
+"TgiZ/r3RNGkmUmYHPQq6Scti9PEajvwRT2iWTHQr02fesqOqBY2ETUwgZQ+lltoN\n" \
+"FvhsO9tvBCOIazpswWC9aJ9xju4tWDQH8NVU6YZZ/XteDSGU9YzJqPjY8q3MDxrz\n" \
+"mqepBCf5o8mw/wJ4a2G6xzUr6Fb6T8McDO22PLRL6u3M4Tzs3A2M1j6bykJYi8wW\n" \
+"IRdAvKLWZu/axBVbzYmqmwkm5zLSDW5nIAJbELCQCZwMH56t2Dvqofxs6BBcCFIZ\n" \
+"USpxu6x6td0V7SvJCCosirSmIatj/9dSSVDQibet8q/7UK4v4ZUN80atnZz1yg==\n" \
+"-----END CERTIFICATE-----\n";
 
 /*  HTTPSでPOSTする  */
 String httpsPost(String url, String data, int port)
@@ -94,6 +93,7 @@ String httpsPost(String url, String data, int port)
   String response = "";
   char rcvBuf[2048];
   int rcvCount = 0;
+  client.setCACert(root_ca);
   while(!client.connect(charHost, port))
   {
     delay(10);
@@ -127,6 +127,13 @@ String postPic(String url, String token, uint8_t* addr, int picLen, int port)
   int rcvCount = 0;
   Serial.print("Connecting ");
   Serial.println(charHost);
+  
+  //時計からファイル名生成
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  char filename[128];
+  sprintf(filename,"M5Camera-%02d%02d%02d %02d%02d%02d.jpg", timeinfo.tm_year+1900,timeinfo.tm_mon+1,timeinfo.tm_mday,timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+ 
 
   String boundary = "------WebKitFormBoundary6n1BXCrYS8DFaBeb\r\n";
   String body="\r\n";
@@ -134,7 +141,8 @@ String postPic(String url, String token, uint8_t* addr, int picLen, int port)
   body += "Content-Disposition: form-data; name=\"metadata\"; filename=\"blob\"\r\n";
   body += "Content-Type: application/json\r\n";
   body += "\r\n";
-  body += "{ \"title\": \"esp32.jpg\", \"mimeType\": \"image/jpeg\", \"description\": \"Uploaded From ESP32\" }\r\n";
+  //idにてGoogleDriveのフォルダIDを指定することにより、特定のフォルダにアップできます。
+  body += "{ \"title\": \""+((String)filename)+"\", \"mimeType\": \"image/jpeg\", \"description\": \"Uploaded From ESP32\", \"parents\": [ { \"kind\": \"drive#parentReference\", \"id\": \"   folderid  \" } ] }\r\n";
   body += boundary;
   body += "Content-Disposition: form-data; name=\"file\"; filename=\"upload.jpg\"\r\n";
   body += "Content-Type: image/jpeg\r\n";
@@ -289,10 +297,10 @@ String getAccessToken(String refresh_token, String client_id, String client_secr
   "\r\n"
   "\r\n";
 
-  Serial.println(header);
-  Serial.println(body);
-  String ret = httpsPost("https://accounts.google.com/o/oauth2/token", header + body, 443);
-
+  Serial.println("Header: "+header);
+  Serial.println("Body: "+body);
+  String ret = httpsPost("https://accounts.google.com/o/oauth2/token", header + body, 443); 
+  
   Serial.println("RAW response:");
   Serial.println(ret);
   Serial.println();
@@ -429,24 +437,7 @@ void setup()
   }
   
 
-  /*  設定読み込み  */  
-  fd = SPIFFS.open("/access_token.txt", "r");
-  client_id = fd.readStringUntil('\r');
-  Serial.print("Client ID");
-  client_id.trim();
-  Serial.print(client_id);
-  Serial.println();
-  client_secret = fd.readStringUntil('\r');
-  client_secret.trim();
-  Serial.print("Client Secret");
-  Serial.print(client_secret);
-  Serial.println();
-  String refresh_token = fd.readStringUntil('\r');
-  refresh_token.trim();  
-  Serial.print("Refresh token");
-  Serial.print(refresh_token);
-  Serial.println();
-  fd.close();
+
 
   /*  カメラ初期化設定*/
   camera_config_t config;
@@ -493,12 +484,7 @@ void setup()
   }
   else
   {
-    client.setCACert(root_ca);  
-    String access_token = getAccessToken(refresh_token, client_id, client_secret);
-    Serial.println("Access token: "+access_token);
-    camera_fb_t * fb = getJPEG();
-    String ret = postPic("https://www.googleapis.com/upload/drive/v2/files?uploadType=multipart", access_token, fb->buf, fb->len, 443); 
-    Serial.println(ret);
+    flag=true;
   }
   /*
   あとでカメラ設定変更するときは
@@ -506,10 +492,49 @@ void setup()
   s->set_framesize(s, FRAMESIZE_UXGA);  //解像度設定
   とかやればおｋ
   */
+  //現在時刻をNTPサーバから取得
+  configTime(9*3600L,0,"ntp.nict.jp","time.google.com","ntp.jst.mfeed.ad.jp");
+  struct tm timeinfo;
+  getLocalTime(&timeinfo);
+  Serial.printf("%02d-%02d-%02dT%02d:%02d:%02d+09:00\n", timeinfo.tm_year+1900,timeinfo.tm_mon+1,timeinfo.tm_mday,timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+
 }
 
-/*  特に何もしない */
+/*  15秒に一回撮影 */
 void loop() 
 {
-  delay(10000);
+  if(flag){
+    /*  設定読み込み  */
+	String code = "";
+	String client_id = "";
+	String client_secret = "";
+	File fd = SPIFFS.open("/access_token.txt", "r");
+	client_id = fd.readStringUntil('\r');
+	Serial.print("Client ID");
+	client_id.trim();
+	Serial.print(client_id);
+	Serial.println();
+	client_secret = fd.readStringUntil('\r');
+	client_secret.trim();
+	Serial.print("Client Secret:");
+	Serial.print(client_secret);
+	Serial.println();
+	String refresh_token = fd.readStringUntil('\r');
+	refresh_token.trim();  
+	Serial.print("Refresh token:");
+	Serial.print(refresh_token);
+	Serial.println();
+	fd.close();
+  
+	Serial.println("Upload Start");
+	client.setCACert(root_ca);  
+	String access_token = getAccessToken(refresh_token, client_id, client_secret);
+	Serial.println("Access token: "+access_token);
+	camera_fb_t * fb = getJPEG();
+	String ret = postPic("https://www.googleapis.com/upload/drive/v2/files?uploadType=multipart", access_token, fb->buf, fb->len, 443); 
+	Serial.println("Return: "+ret);
+  }else{
+	Serial.println("Failure");
+  }
+  delay(15000);
 }
